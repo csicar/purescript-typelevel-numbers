@@ -16,11 +16,17 @@ foreign import data NProxy :: Symbol -> Type
 undef :: ∀a. a
 undef = unsafeCoerce unit
 
+class MirrorUnidirectional (a :: Symbol) (mirror :: Symbol) | a -> mirror, mirror -> a
+
+instance mirrorEmpty :: MirrorUnidirectional "" ""
+else
+instance mirrorCons :: (Cons head tail sym, MirrorUnidirectional tailMirror tail, MirrorUnidirectional tail tailMirror, Append tailMirror head mirror) => MirrorUnidirectional sym mirror
+else
+instance mirrorCons' :: (Cons head tail sym, MirrorUnidirectional tail tailMirror, Append tailMirror head mirror) => MirrorUnidirectional mirror sym
+
 class Mirror (a :: Symbol) (mirror :: Symbol) | a -> mirror, mirror -> a
 
-instance mirrorEmpty :: Mirror "" ""
-else
-instance mirrorCons :: (Cons head tail sym, Mirror tail tailMirror, Append tailMirror head mirror) => Mirror sym mirror
+instance mirror :: (MirrorUnidirectional a b, MirrorUnidirectional b a) => Mirror a b
 
 mirrorSymbol :: ∀a b. Mirror a b => NProxy a -> NProxy b
 mirrorSymbol = unsafeCoerce
@@ -50,7 +56,7 @@ else instance isNatDigits :: (Snoc head tail sym, IsNat head, IsNat tail) => IsN
       un = unsafeCoerce unit
 
 
-instance divMod1000 :: DivMod10 "0" "0" "0"
+instance divMod1000       :: DivMod10 "0" "0" "0"
 else instance divMod10D10 :: DivMod10 "1" "0" "1"
 else instance divMod10D20 :: DivMod10 "2" "0" "2"
 else instance divMod10D30 :: DivMod10 "3" "0" "3"
@@ -60,9 +66,7 @@ else instance divMod10D60 :: DivMod10 "6" "0" "6"
 else instance divMod10D70 :: DivMod10 "7" "0" "7"
 else instance divMod10D80 :: DivMod10 "8" "0" "8"
 else instance divMod10D90 :: DivMod10 "9" "0" "9"
-  -- 123 -> 12 3
-  -- Mirror 123 -> 321 -> Cons -> 3 21
-else instance divMod10Rest :: (Mirror x x', Cons head tail' x', Mirror tail' tail) => DivMod10 x tail head
+else instance divMod10Rest :: (Snoc x tail head) => DivMod10 head tail x
 
 class DivMod10 (x :: Symbol) (h :: Symbol) (l :: Symbol) | x -> h l, h l -> x
 
@@ -77,25 +81,67 @@ class (IsNat a) <= IsZero (a :: Symbol) (isZero :: Boolean) | a -> isZero
 instance isZero :: IsZero "0" True
 else instance isNotZero :: IsNat l => IsZero l False
 
+class (IsNat a) <= IsPos a
+
+instance nonZeroPos :: (IsNat a, IsZero a False) => IsPos a
+
 -- -- instance typelevelSucc :: (Pos y, IsZero y yz, DivMod10 x xi xl, SuccP xi xl yi yl yz, DivMod10 y yi yl) => Succ x y
-instance succDivMod :: (IsNat y, IsNat x, IsZero y yz, DivMod10 x xi xl, SuccP xi xl yi yl yz, DivMod10 y yi yl) => Succ x y
+instance succDivMod :: (IsZero y yz, DivMod10 x xi xl, SuccP xi xl yi yl yz, DivMod10 y yi yl, IsNat y, IsNat x) => Succ x y
 
 class SuccP (xh :: Symbol) (xl :: Symbol) (yh :: Symbol) (yl :: Symbol) (yz :: Boolean) | xh xl -> yh yl yz, yh yl yz -> xh xl
 
 class Failure t
 data PredecessorOfZeroError t
 
--- instance failurePredOfZeroError :: Failure (PredecessorOfZeroError x) => SuccP (Tuple x x) (Tuple x x) "0" "0" True
--- else instance succPxiD0xiD1 :: SuccP xi "0" xi "1" False
--- else instance succPxiD1xiD2 :: SuccP xi "1" xi "2" False
--- else instance succPxiD2xiD3 :: SuccP xi "2" xi "3" False
--- else instance succPxiD3xiD4 :: SuccP xi "3" xi "4" False
--- else instance succPxiD4xiD5 :: SuccP xi "4" xi "5" False
--- else instance succPxiD5xiD6 :: SuccP xi "5" xi "6" False
--- else instance succPxiD6xiD7 :: SuccP xi "6" xi "7" False
--- else instance succPxiD7xiD8 :: SuccP xi "7" xi "8" False
--- else instance succPxiD8xiD9 :: SuccP xi "8" xi "9" False
--- else instance succPxiD9iyD0 :: Succ xi yi => SuccP xi "9" yi "0" False
+instance failurePredOfZeroError :: Failure (PredecessorOfZeroError x) => SuccP ("error") ("error") "0" "0" True
+else instance succPxiD0xiD1 :: SuccP xi "0" xi "1" False
+else instance succPxiD1xiD2 :: SuccP xi "1" xi "2" False
+else instance succPxiD2xiD3 :: SuccP xi "2" xi "3" False
+else instance succPxiD3xiD4 :: SuccP xi "3" xi "4" False
+else instance succPxiD4xiD5 :: SuccP xi "4" xi "5" False
+else instance succPxiD5xiD6 :: SuccP xi "5" xi "6" False
+else instance succPxiD6xiD7 :: SuccP xi "6" xi "7" False
+else instance succPxiD7xiD8 :: SuccP xi "7" xi "8" False
+else instance succPxiD8xiD9 :: SuccP xi "8" xi "9" False
+else instance succPxiD9iyD0 :: Succ xi yi => SuccP xi "9" yi "0" False
+
+succ :: forall x y. Succ x y => NProxy x -> NProxy y
+succ _ = undef
+
+class IsPos x <= Pred x (y :: Symbol) | x -> y, y -> x
+instance succPred :: (IsNat y, Succ x y) => Pred y x
+
+pred :: forall x y. Pred x y => NProxy x -> NProxy y
+pred _ = undef
+
+
+class IsNat x <= AddP (x :: Symbol) (y :: Symbol) (z :: Symbol) | x y -> z, z x -> y
+instance addPD0ToNat :: IsNat y => AddP "0" y y
+else instance addPD1ToSucc :: Succ y z => AddP "1" y z
+else instance addPD2ToSucc :: (Succ z z', AddP "1" y z) => AddP "2" y z'
+else instance addPD3ToSucc :: (Succ z z', AddP "2" y z) => AddP "3" y z'
+else instance addPD4ToSucc :: (Succ z z', AddP "3" y z) => AddP "4" y z'
+else instance addPD5ToSucc :: (Succ z z', AddP "4" y z) => AddP "5" y z'
+else instance addPD6ToSucc :: (Succ z z', AddP "5" y z) => AddP "6" y z'
+else instance addPD7ToSucc :: (Succ z z', AddP "6" y z) => AddP "7" y z'
+else instance addPD8ToSucc :: (Succ z z', AddP "7" y z) => AddP "8" y z'
+else instance addPD9ToSucc :: (Succ z z', AddP "8" y z) => AddP "9" y z'
+-- else instance addPMultiDigits :: (Pos (xi :* xl), IsNat z, AddP xi yi zi, DivMod10 y yi yl, AddP xl (zi :* yl) z) => AddP (xi :* xl) y z
+else instance addPMultiDigits :: (IsNat x, DivMod10 x xi xl, DivMod10 y yi yl, AddP xi yi zi, Cons zi yl ziyl, Cons xi xl xixl, AddP xl ziyl z) => AddP x y z
+
+
+
+class (AddP x y z, AddP y x z) <= Add x y z | x y -> z, z x -> y, z y -> x
+instance addTypeLevelRelation :: (AddP x y z, AddP y x z) => Add x y z
+
+addT :: forall x y z. (Add x y z) => NProxy x -> NProxy y -> NProxy z
+addT _ _ = undef
+
+class Sub (x :: Symbol) (y :: Symbol) (z :: Symbol) | x y -> z, z x -> y, z y -> x
+instance subtractTypeLevelRelation :: Add x y z => Sub z y x
+
+subT :: forall x y z. (Sub x y z) => NProxy x -> NProxy y -> NProxy z
+subT _ _ = undef
 
 -- class (IsNat a, IsNat b, IsNat c) <= SumNat (a :: Symbol) (b :: Symbol) (c :: Symbol) | a b -> c
 
