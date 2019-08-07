@@ -83,3 +83,12 @@ instance sumIntConvert :: (SumExtracted a' b' c', IntSignedConvert a a', IntSign
 
 sumInt :: ∀a b c. SumInt a b c => IProxy a -> IProxy b -> IProxy c
 sumInt _ _ = undef
+
+
+class IsZeroInt (a :: Symbol) (isZero :: Boolean) | a -> isZero
+
+instance zeroPos :: IsZeroInt "0" True
+else
+instance zeroNeg ∷ IsZeroInt "-0" True
+else
+instance zeroElse :: IsZeroInt others False
