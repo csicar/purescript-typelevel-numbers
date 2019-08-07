@@ -127,7 +127,7 @@ else instance addPD7ToSucc :: (Succ z z', AddP "6" y z) => AddP "7" y z'
 else instance addPD8ToSucc :: (Succ z z', AddP "7" y z) => AddP "8" y z'
 else instance addPD9ToSucc :: (Succ z z', AddP "8" y z) => AddP "9" y z'
 -- else instance addPMultiDigits :: (Pos (xi :* xl), IsNat z, AddP xi yi zi, DivMod10 y yi yl, AddP xl (zi :* yl) z) => AddP (xi :* xl) y z
-else instance addPMultiDigits :: (IsNat x, DivMod10 x xi xl, DivMod10 y yi yl, AddP xi yi zi, Cons zi yl ziyl, Cons xi xl xixl, AddP xl ziyl z) => AddP x y z
+else instance addPMultiDigits :: (IsPos x, IsNat x, DivMod10 x xi xl, DivMod10 y yi yl, AddP xi yi zi, Append zi yl ziyl, Append xi xl xixl, AddP xl ziyl z) => AddP x y z
 
 
 
