@@ -220,6 +220,12 @@ testInverse3 = inverse (undef :: IProxy "-10")
 testInverse4 :: IProxy "10"
 testInverse4 = inverse (undef :: IProxy _)
 
+testInverse5 :: IProxy "-2"
+testInverse5 = inverse (undef :: IProxy "2")
+
+testInverse6 :: IProxy "2"
+testInverse6 = inverse (undef :: IProxy "-2")
+
 -- sum
 testSum1 :: IProxy "2"
 testSum1 = sumInt (undef :: IProxy "1") (undef :: IProxy "1")
@@ -242,6 +248,11 @@ testSum6 = sumInt (undef :: IProxy "-5") (undef :: IProxy "9")
 testSum7 :: IProxy _
 testSum7 = sumInt (undef :: IProxy "-5") (undef :: IProxy "9")
 
+testSum8 :: IProxy "-1"
+testSum8 = sumInt (undef :: IProxy "1") (undef :: IProxy "-2")
+
+testSum9 :: IProxy "-1"
+testSum9 = sumInt (undef :: IProxy "-2") (undef :: IProxy "1")
 
 main :: Effect Unit
 main = do
