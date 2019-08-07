@@ -1,11 +1,13 @@
 module Test.Main where
 
 import Prelude
+
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Class.Console (log)
-import Main (NProxy, addT, divMod10, mirrorSymbol, succ, undef)
+import Nat (NProxy, addT, divMod10, mirrorSymbol, order, subT, succ, undef)
 import Prim.Symbol (class Cons)
+import Type.Data.Ordering (OProxy(..), GT, EQ, LT)
 
 --cons
 cons :: ∀ a b c. Cons a b c => NProxy c -> Tuple (NProxy a) (NProxy b)
@@ -64,6 +66,9 @@ testDivMod8 = divMod10 (undef :: NProxy "101")
 testDivMod9 :: Tuple (NProxy "10") (NProxy "0")
 testDivMod9 = divMod10 (undef :: NProxy "100")
 
+testDivMod10 :: Tuple (NProxy "1") (NProxy "0")
+testDivMod10 = divMod10 (undef :: NProxy "10")
+
 --Succ
 testSucc1 :: NProxy "1"
 testSucc1 = succ (undef :: NProxy "0")
@@ -117,9 +122,53 @@ testAdd9 = addT (undef :: NProxy _) (undef :: NProxy "8")
 testAdd10 :: NProxy "12"
 testAdd10 = addT (undef :: NProxy "8") (undef :: NProxy _)
 
--- -- fails
--- testAdd11 :: NProxy "11"
--- testAdd11 = addT (undef :: NProxy ?a) (undef :: NProxy "10")
+testAdd11 :: NProxy "10"
+testAdd11 = addT (undef :: NProxy _) (undef :: NProxy "0")
+
+testAdd12 :: NProxy "10"
+testAdd12 = addT (undef :: NProxy "10") (undef :: NProxy "0")
+
+testAdd13 :: NProxy "10"
+testAdd13 = addT (undef :: NProxy _) (undef :: NProxy "0")
+
+testAdd14 :: NProxy "10"
+testAdd14 = addT (undef :: NProxy "10") (undef :: NProxy "0")
+
+testAdd15 :: NProxy "10"
+testAdd15 = addT (undef :: NProxy "0") (undef :: NProxy "10")
+
+-- Sub
+testSub1 :: NProxy "2"
+testSub1 = subT (undef :: NProxy "10") (undef :: NProxy "8")
+
+testSub2 :: NProxy "4"
+testSub2 = subT (undef :: NProxy "12") (undef :: NProxy "8")
+
+testSub3 :: NProxy _
+testSub3 = subT (undef :: NProxy "12") (undef :: NProxy "8")
+
+testSub4 :: NProxy "42"
+testSub4 = subT (undef :: NProxy "50") (undef :: NProxy "8")
+
+-- Order
+testOrder :: OProxy GT
+testOrder = order (undef :: NProxy "5") (undef :: NProxy "2")
+
+testOrder2 :: OProxy EQ
+testOrder2 = order (undef :: NProxy "50") (undef :: NProxy "50")
+
+testOrder3 :: OProxy LT
+testOrder3 = order (undef :: NProxy "5") (undef :: NProxy "18")
+
+testOrder4 :: OProxy GT
+testOrder4 = order (undef :: NProxy "15") (undef :: NProxy "2")
+
+testOrder5 :: OProxy _
+testOrder5 = order (undef :: NProxy "5") (undef :: NProxy "18")
+
+testOrder6 :: OProxy _
+testOrder6 = order (undef :: NProxy "15") (undef :: NProxy "2")
+
 
 main :: Effect Unit
 main = do
