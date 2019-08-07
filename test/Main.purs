@@ -2,12 +2,24 @@ module Test.Main where
 
 import Prelude
 
+import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Class.Console (log)
-import Nat (NProxy, addT, divMod10, mirrorSymbol, order, subT, succ, undef)
+import Nat (NProxy, addT, divMod10, mirrorSymbol, order, subT, succ, toDigits, undef)
 import Prim.Symbol (class Cons)
+import Type.Data.Internal.Num.Reps (type (:*), D1, D9, D2, NumProxy)
 import Type.Data.Ordering (OProxy(..), GT, EQ, LT)
+
+
+-- convertion
+
+
+testToDigits :: _
+testToDigits = toDigits (undef :: SProxy "123")
+
+testToDigits2 :: NumProxy (D1 :* D9 :* D2)
+testToDigits2 = toDigits (undef :: SProxy _)
 
 --cons
 cons :: ∀ a b c. Cons a b c => NProxy c -> Tuple (NProxy a) (NProxy b)
@@ -134,8 +146,8 @@ testAdd13 = addT (undef :: NProxy _) (undef :: NProxy "0")
 testAdd14 :: NProxy "10"
 testAdd14 = addT (undef :: NProxy "10") (undef :: NProxy "0")
 
-testAdd15 :: NProxy "10"
-testAdd15 = addT (undef :: NProxy "0") (undef :: NProxy "10")
+testAdd15 :: NProxy "40"
+testAdd15 = addT (undef :: NProxy _) (undef :: NProxy "10")
 
 -- Sub
 testSub1 :: NProxy "2"
