@@ -1,7 +1,6 @@
 module Test.Main where
 
 import Prelude
-
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Class.Console (log)
@@ -9,7 +8,7 @@ import Main (NProxy, addT, divMod10, mirrorSymbol, succ, undef)
 import Prim.Symbol (class Cons)
 
 --cons
-cons :: ∀a b c. Cons a b c => NProxy c -> Tuple (NProxy a) (NProxy b)
+cons :: ∀ a b c. Cons a b c => NProxy c -> Tuple (NProxy a) (NProxy b)
 cons _ = Tuple (undef :: NProxy a) (undef :: NProxy b)
 
 testCons1 :: Tuple (NProxy "2") (NProxy "")
@@ -17,7 +16,6 @@ testCons1 = cons (undef :: NProxy "2")
 
 testCons2 :: Tuple (NProxy _) (NProxy _)
 testCons2 = cons (undef :: NProxy "2")
-
 
 -- Mirror
 testMirror1 :: NProxy "321"
@@ -85,6 +83,9 @@ testSucc5 = succ (undef :: NProxy "12")
 testSucc6 :: NProxy "13"
 testSucc6 = succ (undef :: NProxy _)
 
+testSucc7 :: NProxy "101"
+testSucc7 = succ (undef :: NProxy "100")
+
 -- Add
 testAdd1 :: NProxy "1"
 testAdd1 = addT (undef :: NProxy "0") (undef :: NProxy "1")
@@ -98,14 +99,27 @@ testAdd3 = addT (undef :: NProxy "10") (undef :: NProxy "10")
 testAdd4 :: NProxy "99"
 testAdd4 = addT (undef :: NProxy "77") (undef :: NProxy "22")
 
-testAdd5 :: NProxy "99"
-testAdd5 = addT (undef :: NProxy _) (undef :: NProxy "22")
+testAdd5 :: NProxy _
+testAdd5 = addT (undef :: NProxy "12") (undef :: NProxy "72")
 
-testAdd6 :: NProxy "99"
-testAdd6 = addT (undef :: NProxy _) (undef :: NProxy "22")
+testAdd6 :: NProxy "9"
+testAdd6 = addT (undef :: NProxy _) (undef :: NProxy "2")
 
--- testAdd7 :: NProxy "123"
--- testAdd7 = addT (undef :: NProxy "52") (undef :: NProxy "71")
+testAdd7 :: NProxy "100"
+testAdd7 = addT (undef :: NProxy "51") (undef :: NProxy "49")
+
+testAdd8 :: NProxy "10"
+testAdd8 = addT (undef :: NProxy _) (undef :: NProxy "9")
+
+testAdd9 :: NProxy "12"
+testAdd9 = addT (undef :: NProxy _) (undef :: NProxy "8")
+
+testAdd10 :: NProxy "12"
+testAdd10 = addT (undef :: NProxy "8") (undef :: NProxy _)
+
+-- -- fails
+-- testAdd11 :: NProxy "11"
+-- testAdd11 = addT (undef :: NProxy ?a) (undef :: NProxy "10")
 
 main :: Effect Unit
 main = do
