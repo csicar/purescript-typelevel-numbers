@@ -1,4 +1,4 @@
-module Nat where
+module Type.Data.Nat where
 
 import Prelude
 

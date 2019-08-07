@@ -6,9 +6,10 @@ import Data.Symbol (SProxy(..))
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Class.Console (log)
-import Nat (NProxy, addT, divMod10, mirrorSymbol, order, subT, succ, toDigits, undef)
 import Prim.Symbol (class Cons)
+import Type.Data.Int (IProxy, Neg, Pos, intSignedConvert, inverse, reflectInt, sumInt)
 import Type.Data.Internal.Num.Reps (type (:*), D1, D9, D2, NumProxy)
+import Type.Data.Nat (NProxy, addT, divMod10, mirrorSymbol, order, subT, succ, toDigits, undef)
 import Type.Data.Ordering (OProxy(..), GT, EQ, LT)
 
 
@@ -180,6 +181,66 @@ testOrder5 = order (undef :: NProxy "5") (undef :: NProxy "18")
 
 testOrder6 :: OProxy _
 testOrder6 = order (undef :: NProxy "15") (undef :: NProxy "2")
+
+-- test Int reflect
+testReflectInt1 :: Int
+testReflectInt1 = reflectInt (undef :: IProxy "12")
+
+testReflectInt2 :: Int
+testReflectInt2 = reflectInt (undef :: IProxy "-12")
+
+-- extract int
+
+textExtract :: Pos "12"
+textExtract = intSignedConvert (undef :: IProxy "12")
+
+textExtract2 :: Neg "12"
+textExtract2 = intSignedConvert (undef :: IProxy "-12")
+
+textExtract3 :: Pos "0"
+textExtract3 = intSignedConvert (undef :: IProxy "0")
+
+textExtract4 :: _
+textExtract4 = intSignedConvert (undef :: IProxy "-2")
+
+textExtract5 :: Pos "2"
+textExtract5 = intSignedConvert (undef :: IProxy _)
+
+-- inverse
+
+testInverse :: IProxy "0"
+testInverse = inverse (undef :: IProxy "0")
+
+testInverse2 :: IProxy "10"
+testInverse2 = inverse (undef :: IProxy "-10")
+
+testInverse3 :: IProxy _
+testInverse3 = inverse (undef :: IProxy "-10")
+
+testInverse4 :: IProxy "10"
+testInverse4 = inverse (undef :: IProxy _)
+
+-- sum
+testSum1 :: IProxy "2"
+testSum1 = sumInt (undef :: IProxy "1") (undef :: IProxy "1")
+
+testSum2 :: IProxy "3"
+testSum2 = sumInt (undef :: IProxy "1") (undef :: IProxy "2")
+
+testSum3 :: IProxy "1"
+testSum3 = sumInt (undef :: IProxy "-1") (undef :: IProxy "2")
+
+testSum4 :: IProxy "-2"
+testSum4 = sumInt (undef :: IProxy "-7") (undef :: IProxy "5")
+
+testSum5 :: IProxy "-2"
+testSum5 = sumInt (undef :: IProxy "1") (undef :: IProxy "-3")
+
+testSum6 :: IProxy "4"
+testSum6 = sumInt (undef :: IProxy "-5") (undef :: IProxy "9")
+
+testSum7 :: IProxy _
+testSum7 = sumInt (undef :: IProxy "-5") (undef :: IProxy "9")
 
 
 main :: Effect Unit
