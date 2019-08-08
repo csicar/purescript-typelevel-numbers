@@ -9,6 +9,7 @@ You can edit this file as you like.
     , "effect"
     , "partial"
     , "psci-support"
+    , "test-unit"
     , "tuples"
     , "typelevel-prelude"
     , "unsafe-coerce"

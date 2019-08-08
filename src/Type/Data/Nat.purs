@@ -138,6 +138,20 @@ instance numToNatSub :: (O.Sub x' y' z', IsNat x x', IsNat y y', IsNat z z') => 
 subT :: ∀x y z. Sub x y z => NProxy x -> NProxy y -> NProxy z
 subT _ _ = NProxy
 
+class Mul (x :: Symbol) (y :: Symbol) (z :: Symbol) | x y -> z
+
+instance numToNatMul :: (O.Mul x' y' z', IsNat x x', IsNat y y', IsNat z z') => Mul x y z
+
+mulT :: ∀x y z. Mul x y z => NProxy x -> NProxy y -> NProxy z
+mulT _ _ = NProxy
+
+class Div (x :: Symbol) (y :: Symbol) (z :: Symbol) | x y -> z
+
+instance numToNatDiv :: (O.Div x' y' z', IsNat x x', IsNat y y', IsNat z z') => Div x y z
+
+divT :: ∀x y z. Div x y z => NProxy x -> NProxy y -> NProxy z
+divT _ _ = NProxy
+
 class Succ (x :: Symbol) (y :: Symbol) | x -> y, y -> x
 
 instance numTonatSucc :: (O.Succ x' y', IsNat x x', IsNat y y') => Succ x y

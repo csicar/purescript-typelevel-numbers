@@ -7,20 +7,23 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Class.Console (log)
 import Prim.Symbol (class Cons)
+import Test.Unit (suite, test)
+import Test.Unit.Assert (equal)
+import Test.Unit.Main (runTest)
 import Type.Data.Int (IProxy(..), Neg, Pos, intSignedConvert, inverse, reflectInt, sumInt)
 import Type.Data.Internal.Num.Reps (type (:*), D1, D9, D2, NumProxy)
-import Type.Data.Nat (SLProxy, Cons, NProxy(..), Nil, addT, divMod10, mirrorSymbol, order, subT, succ, symbolToList, symbolToSnoc, toDigits, undef)
-import Type.Data.Ordering (OProxy(..), GT, EQ, LT)
+import Type.Data.Nat (Cons, NProxy(..), Nil, SLProxy, addT, divMod10, mirrorSymbol, mulT, order, pred, reflectNat, subT, succ, symbolToList, symbolToSnoc, toDigits)
+import Type.Data.Ordering (EQ, GT, LT, OProxy(..), reflectOrdering)
 
 
 -- convertion
 
 
 testToDigits :: _
-testToDigits = toDigits (undef :: SProxy "123")
+testToDigits = toDigits (SProxy :: SProxy "123")
 
 testToDigits2 :: NumProxy (D1 :* D9 :* D2)
-testToDigits2 = toDigits (undef :: SProxy _)
+testToDigits2 = toDigits (SProxy :: SProxy _)
 
 --cons
 cons :: ∀ a b c. Cons a b c => NProxy c -> Tuple (NProxy a) (NProxy b)
@@ -53,22 +56,22 @@ testMirror6 = mirrorSymbol (NProxy::_ _)
 
 -- SymbolList
 testSymbolList :: SLProxy (Cons "T" (Cons "e" (Cons "s" (Cons "t" Nil))))
-testSymbolList = symbolToList (undef :: SProxy "Test")
+testSymbolList = symbolToList (SProxy :: SProxy "Test")
 
 testSymbolList2 :: SLProxy _
-testSymbolList2 = symbolToList (undef :: SProxy "Test")
+testSymbolList2 = symbolToList (SProxy :: SProxy "Test")
 
 testSymbolList3 :: SLProxy (Cons "T" (Cons "e" (Cons "s" (Cons "t" Nil))))
-testSymbolList3 = symbolToList (undef :: SProxy _)
+testSymbolList3 = symbolToList (SProxy :: SProxy _)
 
 testConsList :: SLProxy (Cons "d" (Cons "s" (Cons "a" Nil)))
-testConsList = symbolToSnoc (undef :: SProxy "asd")
+testConsList = symbolToSnoc (SProxy :: SProxy "asd")
 
 testConsList2 :: SLProxy _
-testConsList2 = symbolToSnoc (undef :: SProxy "asd")
+testConsList2 = symbolToSnoc (SProxy :: SProxy "asd")
 
 testConsList3 :: SLProxy (Cons "d" (Cons "s" (Cons "a" Nil)))
-testConsList3 = symbolToSnoc (undef :: SProxy _)
+testConsList3 = symbolToSnoc (SProxy :: SProxy _)
 
 -- DivMod10
 testDivMod1 :: Tuple (NProxy "12") (NProxy "3")
@@ -274,6 +277,76 @@ testSum9 :: IProxy "-1"
 testSum9 = sumInt (IProxy::_ "-2") (IProxy::_ "1")
 
 main :: Effect Unit
-main = do
-  log "🍝"
-  log "You should add some tests."
+main = runTest do
+  suite "nats" do
+    suite "test values" do
+      test "0" do
+        equal 0 $ reflectNat $ (NProxy :: _"0")
+      test "1" do
+        equal 1 $ reflectNat $ (NProxy :: _"1")
+      test "2" do
+        equal 2 $ reflectNat $ (NProxy :: _"2")
+      test "3" do
+        equal 3 $ reflectNat $ (NProxy :: _"3")
+      test "4" do
+        equal 4 $ reflectNat $ (NProxy :: _"4")
+      test "5" do
+        equal 5 $ reflectNat $ (NProxy :: _"5")
+      test "6" do
+        equal 6 $ reflectNat $ (NProxy :: _"6")
+      test "7" do
+        equal 7 $ reflectNat $ (NProxy :: _"7")
+      test "8" do
+        equal 8 $ reflectNat $ (NProxy :: _"8")
+      test "9" do
+        equal 9 $ reflectNat $ (NProxy :: _"9")
+    suite "succ" do
+      test "succ 2" do
+        equal 3 $ reflectNat $ succ (NProxy ::_"2")
+      test "succ 23" do
+        equal 24 $ reflectNat $ succ (NProxy ::_"23")
+      test "succ 234" do
+        equal 235 $ reflectNat $ succ (NProxy ::_"234")
+    suite "pred" do
+      test "pred 2" do
+        equal 1 $ reflectNat $ pred (NProxy ::_"2")
+      test "pred 23" do
+        equal 22 $ reflectNat $ pred (NProxy ::_"23")
+      test "pred 234" do
+        equal 233 $ reflectNat $ pred (NProxy ::_"234")
+        -- This one should fail type checking:
+        -- equal 0 $ reflectNat $ pred (NProxy ::_"0")
+    suite "order" do
+      test "2 < 3" do
+        equal LT $ reflectOrdering $ order (NProxy::_ "2") (NProxy::_ "3")
+      test "5 > 3" do
+        equal GT $ reflectOrdering $ order (NProxy::_ "5") (NProxy::_ "3")
+      test "3 = 3" do
+        equal EQ $ reflectOrdering $ order (NProxy::_ "3") (NProxy::_ "3")
+      test "2 < 23" do
+        equal LT $ reflectOrdering $ order (NProxy::_ "2") (NProxy::_ "23")
+      test "23 > 2" do
+        equal GT $ reflectOrdering $ order (NProxy::_ "23") (NProxy::_ "2")
+      test "23 = 23" do
+        equal EQ $ reflectOrdering $ order (NProxy::_ "23") (NProxy::_ "23")
+      test "23 < 234" do
+        equal LT $ reflectOrdering $ order (NProxy::_ "23") (NProxy::_ "234")
+      test "234 > 23" do
+        equal GT $ reflectOrdering $ order (NProxy::_ "234") (NProxy::_ "23")
+    suite "add" do
+      test "2 + 3" do
+        equal 5 $ reflectNat $ addT (NProxy::_ "2") (NProxy::_ "3")
+      test "23 + 24" do
+        equal 47 $ reflectNat $ addT (NProxy::_ "23") (NProxy::_ "24")
+    suite "sub" do
+      test "8 - 3" do
+        equal 5 $ reflectNat $ subT (NProxy::_ "8") (NProxy::_ "3")
+      test "23 - 8" do
+        equal 15 $ reflectNat $ subT (NProxy::_ "23") (NProxy::_ "8")
+      -- This one should fail type checking:
+      -- equal 0 $ reflectNat $ sub (NProxy::_ "2") (NProxy::_ "3")
+    suite "mul" do
+      test "2 * 3" do
+        equal 6 $ reflectNat $ mulT (NProxy::_ "2") (NProxy::_ "3")
+      test "3 * 23" do
+        equal 69 $ reflectNat $ mulT (NProxy::_ "3") (NProxy::_ "23")

@@ -7,6 +7,7 @@ import Data.Symbol (SProxy(..))
 import Prim.Symbol (class Cons, class Append)
 import Type.Data.Boolean (class If)
 import Type.Prelude (kind Boolean, True, False, LT, GT, EQ, kind Ordering)
+import Unsafe.Coerce (unsafeCoerce)
 
 data IProxy (sym :: Symbol) = IProxy
 
@@ -23,7 +24,7 @@ instance negElse :: IsSign' a False where
   reflectSign _ = 1
 
 instance posIsInt :: (Cons head tail sym, IsSign' head isHeadSign, If isHeadSign (SProxy tail) (SProxy sym) (SProxy nat), IsNat nat nn) => IsInt sym where
-  reflectInt _ = reflectSign (undef :: SProxy head) * reflectNat (undef :: NProxy nat)
+  reflectInt _ = reflectSign (SProxy :: SProxy head) * reflectNat (NProxy :: NProxy nat)
 
 class IntExtract (int :: Symbol) signed | int -> signed
 
@@ -39,7 +40,7 @@ class IntSignedConvert (int :: Symbol) signed | int -> signed, signed -> int
 instance intSignedConvertFromComp :: (IntExtract int signed, CombineInt signed int) => IntSignedConvert int signed
 
 intSignedConvert :: ∀x y. IntSignedConvert x y => IProxy x -> y
-intSignedConvert _ = undef
+intSignedConvert = unsafeCoerce
 
 data Pos (sym :: Symbol)
 data Neg (sym :: Symbol)
@@ -60,7 +61,7 @@ else
 instance inverseNeg :: InverseExtracted (Neg sym) (Pos sym)
 
 inverse :: ∀x y. Inverse x y => IProxy x -> IProxy y
-inverse _ = undef
+inverse _ = IProxy
 
 -- sum
 
@@ -82,7 +83,7 @@ class SumInt (a :: Symbol) (b :: Symbol) (c :: Symbol)
 instance sumIntConvert :: (SumExtracted a' b' c', IntSignedConvert a a', IntSignedConvert b b', IntSignedConvert c c') => SumInt a b c
 
 sumInt :: ∀a b c. SumInt a b c => IProxy a -> IProxy b -> IProxy c
-sumInt _ _ = undef
+sumInt _ _ = IProxy
 
 
 class IsZeroInt (a :: Symbol) (isZero :: Boolean) | a -> isZero
