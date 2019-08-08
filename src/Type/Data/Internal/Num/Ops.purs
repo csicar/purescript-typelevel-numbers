@@ -308,6 +308,36 @@ instance trichDxxD9 :: Pos (yi :* yl) => Trich (yi :* yl) D9 GT
 
 instance trichDxxDxx :: (Pos (xi :* xl), Pos (yi :* yl), Trich xl yl rl, Trich xi yi ri, Append ri rl r) => Trich (xi :* xl) (yi :* yl) r
 
+-- Max / Min
+
+class MaxP (x :: Num) (y :: Num) (b :: Ordering) (r :: Num) | x y b -> r
+instance maxPLT :: MaxP x y LT y
+instance maxPEQ :: MaxP x y EQ y
+instance maxPGT :: MaxP x y GT x
+
+class Max (x :: Num) (y :: Num) (z :: Num) | x y -> z
+instance maxRelation :: (MaxP x y b z, Trich x y b) => Max x y z
+
+max :: forall x y z. Max x y z => NumProxy x -> NumProxy y -> NumProxy z
+max _ _ = undefined
+
+class Min (x :: Num) (y :: Num) (z :: Num) | x y -> z
+instance minRelation :: (MaxP y x b z, Trich x y b) => Min x y z
+
+min :: forall x y z. Min x y z => NumProxy x -> NumProxy y -> NumProxy z
+min _ _ = undefined
+
+class (Nat x, Nat y, Nat gcd) <= GCD (x :: Num) (y :: Num) (gcd :: Num) | x y -> gcd
+instance gcdRelation :: (Nat x, Nat y, Trich x y cmp, IsZero y yz, GCDP x y yz cmp gcd) => GCD x y gcd
+
+class (Nat x, Nat y, Nat gcd) <= GCDP x y (yz :: Boolean) (cmp :: Ordering) gcd | x y yz cmp -> gcd
+instance gcdpD0 :: Nat x => GCDP x D0 True cmp D0
+instance gcdpXYLT :: (Nat x, Nat y, GCD y x gcd) => GCDP x y False LT gcd
+instance gcdpXX :: Nat x => GCDP x x False EQ x
+instance gcdpXYGT :: (Nat x, Nat y, Sub x y x', GCD x' y gcd) => GCDP x y False GT gcd
+
+gcd :: forall x y z. GCD x y z => NumProxy x -> NumProxy y -> NumProxy z
+gcd _ _ = undefined
 
 
 -- Internal

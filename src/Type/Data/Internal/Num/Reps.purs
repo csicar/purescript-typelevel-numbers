@@ -13,7 +13,7 @@ foreign import data D7 :: Num
 foreign import data D8 :: Num
 foreign import data D9 :: Num
 
-data NumProxy (d :: Num)
+data NumProxy (d :: Num) = NumProxy
 
 foreign import data NumCons :: Num -> Num -> Num
 infixl 6 type NumCons as :*

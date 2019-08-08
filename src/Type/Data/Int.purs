@@ -8,7 +8,7 @@ import Prim.Symbol (class Cons, class Append)
 import Type.Data.Boolean (class If)
 import Type.Prelude (kind Boolean, True, False, LT, GT, EQ, kind Ordering)
 
-foreign import data IProxy :: Symbol -> Type
+data IProxy (sym :: Symbol) = IProxy
 
 class IsInt (a :: Symbol) where
   reflectInt :: IProxy a -> Int
